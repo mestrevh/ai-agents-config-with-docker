@@ -1,0 +1,1540 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Desmistificando o Dockerfile - Guia Interativo</title>
+    <meta name="description" content="Um guia visual, interativo e moderno para entender como funcionam os Dockerfiles, suas instruções principais e como construir e rodar seus containers.">
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;600&family=Inter:wght@300;400;500;600;700;800&family=Outfit:wght@400;600;700;800&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            /* Dark Theme Variables (Default) */
+            --bg-primary: #0b0f19;
+            --bg-secondary: #131926;
+            --bg-card: rgba(22, 30, 49, 0.7);
+            --border-color: rgba(255, 255, 255, 0.08);
+            --text-primary: #f3f4f6;
+            --text-secondary: #9ca3af;
+            --text-muted: #6b7280;
+            --primary: #0091ff;
+            --primary-gradient: linear-gradient(135deg, #0091ff 0%, #00d2ff 100%);
+            --secondary-gradient: linear-gradient(135deg, #8b5cf6 0%, #d946ef 100%);
+            --accent: #10b981;
+            --accent-bg: rgba(16, 185, 129, 0.1);
+            --code-bg: #1e293b;
+            --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.15);
+            --shadow-md: 0 8px 30px rgba(0, 0, 0, 0.3);
+            --shadow-lg: 0 15px 40px rgba(0, 0, 0, 0.4);
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            --font-main: 'Inter', sans-serif;
+            --font-display: 'Outfit', sans-serif;
+            --font-code: 'Fira Code', monospace;
+            --glass-blur: blur(12px);
+        }
+
+        [data-theme="light"] {
+            /* Light Theme Variables */
+            --bg-primary: #f8fafc;
+            --bg-secondary: #ffffff;
+            --bg-card: rgba(241, 245, 249, 0.8);
+            --border-color: rgba(0, 0, 0, 0.06);
+            --text-primary: #0f172a;
+            --text-secondary: #475569;
+            --text-muted: #94a3b8;
+            --primary: #0284c7;
+            --primary-gradient: linear-gradient(135deg, #0284c7 0%, #0ea5e9 100%);
+            --secondary-gradient: linear-gradient(135deg, #7c3aed 0%, #db2777 100%);
+            --accent: #059669;
+            --accent-bg: rgba(5, 150, 105, 0.1);
+            --code-bg: #f1f5f9;
+            --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.05);
+            --shadow-md: 0 8px 30px rgba(0, 0, 0, 0.08);
+            --shadow-lg: 0 15px 40px rgba(0, 0, 0, 0.12);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            font-family: var(--font-main);
+            line-height: 1.6;
+            overflow-x: hidden;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        /* Ambient Glow Blobs */
+        .glow-blob {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(140px);
+            z-index: -1;
+            opacity: 0.15;
+            pointer-events: none;
+            transition: opacity 0.5s;
+        }
+
+        .glow-blob-1 {
+            top: -10%;
+            right: 5%;
+            width: 40vw;
+            height: 40vw;
+            background: var(--primary-gradient);
+        }
+
+        .glow-blob-2 {
+            top: 40%;
+            left: -10%;
+            width: 35vw;
+            height: 35vw;
+            background: var(--secondary-gradient);
+        }
+
+        /* Container */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 2rem;
+            position: relative;
+        }
+
+        /* Header & Navigation */
+        header {
+            padding: 1.5rem 0;
+            border-bottom: 1px solid var(--border-color);
+            position: sticky;
+            top: 0;
+            background-color: rgba(11, 15, 25, 0.7);
+            backdrop-filter: var(--glass-blur);
+            -webkit-backdrop-filter: var(--glass-blur);
+            z-index: 100;
+            transition: background-color 0.3s;
+        }
+
+        [data-theme="light"] header {
+            background-color: rgba(248, 250, 252, 0.8);
+        }
+
+        .nav-wrapper {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-family: var(--font-display);
+            font-weight: 800;
+            font-size: 1.5rem;
+            background: var(--primary-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-decoration: none;
+        }
+
+        .logo svg {
+            width: 32px;
+            height: 32px;
+            fill: url(#docker-grad);
+        }
+
+        .theme-toggle {
+            background: transparent;
+            border: 1px solid var(--border-color);
+            color: var(--text-primary);
+            cursor: pointer;
+            padding: 0.5rem;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+            height: 40px;
+            transition: var(--transition);
+        }
+
+        .theme-toggle:hover {
+            background-color: rgba(255, 255, 255, 0.05);
+            transform: scale(1.05);
+        }
+
+        [data-theme="light"] .theme-toggle:hover {
+            background-color: rgba(0, 0, 0, 0.05);
+        }
+
+        .theme-toggle svg {
+            width: 20px;
+            height: 20px;
+            fill: none;
+            stroke: currentColor;
+            stroke-width: 2;
+        }
+
+        /* Hero Section */
+        .hero {
+            padding: 6rem 0 4rem;
+            text-align: center;
+            position: relative;
+        }
+
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: var(--accent-bg);
+            color: var(--accent);
+            padding: 0.5rem 1rem;
+            border-radius: 9999px;
+            font-size: 0.875rem;
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+            border: 1px solid rgba(16, 185, 129, 0.2);
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.8; }
+        }
+
+        .hero h1 {
+            font-family: var(--font-display);
+            font-size: 3.5rem;
+            font-weight: 800;
+            line-height: 1.15;
+            margin-bottom: 1.5rem;
+            letter-spacing: -0.02em;
+        }
+
+        .hero h1 span {
+            background: var(--primary-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .hero p {
+            font-size: 1.25rem;
+            color: var(--text-secondary);
+            max-width: 700px;
+            margin: 0 auto 2rem;
+            font-weight: 400;
+        }
+
+        .hero-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.75rem 1.5rem;
+            font-family: var(--font-main);
+            font-weight: 600;
+            font-size: 1rem;
+            text-decoration: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .btn-primary {
+            background: var(--primary-gradient);
+            color: white;
+            border: none;
+            box-shadow: 0 4px 15px rgba(0, 145, 255, 0.4);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 145, 255, 0.5);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--text-primary);
+            border: 1px solid var(--border-color);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.05);
+            transform: translateY(-2px);
+        }
+
+        [data-theme="light"] .btn-secondary:hover {
+            background: rgba(0, 0, 0, 0.02);
+        }
+
+        /* Section Global Styles */
+        section {
+            padding: 5rem 0;
+        }
+
+        .section-header {
+            margin-bottom: 3.5rem;
+            text-align: center;
+        }
+
+        .section-header h2 {
+            font-family: var(--font-display);
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 0.75rem;
+        }
+
+        .section-header p {
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        /* Card System */
+        .glass-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 2rem;
+            box-shadow: var(--shadow-md);
+            backdrop-filter: var(--glass-blur);
+            -webkit-backdrop-filter: var(--glass-blur);
+            transition: var(--transition);
+        }
+
+        .glass-card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-lg);
+            border-color: rgba(255, 255, 255, 0.15);
+        }
+
+        [data-theme="light"] .glass-card:hover {
+            border-color: rgba(0, 0, 0, 0.12);
+        }
+
+        /* Grid Layouts */
+        .grid-2 {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 2rem;
+        }
+
+        .grid-3 {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 2rem;
+        }
+
+        @media (max-width: 900px) {
+            .grid-2, .grid-3 {
+                grid-template-columns: 1fr;
+            }
+            .hero h1 {
+                font-size: 2.5rem;
+            }
+        }
+
+        /* Feature Cards */
+        .feature-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            background: var(--primary-gradient);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 1.5rem;
+            color: white;
+        }
+
+        .feature-icon svg {
+            width: 24px;
+            height: 24px;
+            fill: currentColor;
+        }
+
+        .feature-card h3 {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 0.75rem;
+        }
+
+        .feature-card p {
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+        }
+
+        /* Interactive Dockerfile Explorer */
+        .dockerfile-explorer {
+            display: grid;
+            grid-template-columns: 1.2fr 0.8fr;
+            gap: 2rem;
+            align-items: start;
+        }
+
+        @media (max-width: 992px) {
+            .dockerfile-explorer {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .code-container {
+            background-color: var(--code-bg);
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+            overflow: hidden;
+            box-shadow: var(--shadow-md);
+        }
+
+        .code-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.75rem 1.25rem;
+            background-color: rgba(0, 0, 0, 0.2);
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .dots {
+            display: flex;
+            gap: 6px;
+        }
+
+        .dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }
+
+        .dot-red { background-color: #ef4444; }
+        .dot-yellow { background-color: #eab308; }
+        .dot-green { background-color: #22c55e; }
+
+        .filename {
+            font-family: var(--font-code);
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+
+        .dockerfile-interactive {
+            padding: 1.5rem;
+            overflow-x: auto;
+            counter-reset: line;
+        }
+
+        .dockerfile-interactive code {
+            font-family: var(--font-code);
+            font-size: 0.95rem;
+            display: block;
+            white-space: pre;
+            color: #cbd5e1;
+        }
+
+        .code-line {
+            display: block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: var(--transition);
+            position: relative;
+        }
+
+        .code-line::before {
+            counter-increment: line;
+            content: counter(line);
+            display: inline-block;
+            width: 2rem;
+            margin-right: 1rem;
+            color: var(--text-muted);
+            text-align: right;
+            user-select: none;
+        }
+
+        .code-line:hover {
+            background-color: rgba(255, 255, 255, 0.05);
+        }
+
+        [data-theme="light"] .code-line:hover {
+            background-color: rgba(0, 0, 0, 0.04);
+        }
+
+        .code-line.active {
+            background-color: rgba(0, 145, 255, 0.15);
+            border-left: 3px solid var(--primary);
+            padding-left: calc(0.75rem - 3px);
+        }
+
+        /* Syntax Highlighting Mock */
+        .token-keyword { color: #f43f5e; font-weight: 600; }
+        .token-arg { color: #38bdf8; }
+        .token-comment { color: var(--text-muted); font-style: italic; }
+        .token-string { color: #10b981; }
+
+        /* Detail Card */
+        .detail-panel {
+            min-height: 380px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .detail-header {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin-bottom: 1rem;
+        }
+
+        .instruction-tag {
+            background: var(--primary-gradient);
+            color: white;
+            padding: 0.25rem 0.75rem;
+            border-radius: 4px;
+            font-family: var(--font-code);
+            font-weight: 700;
+            font-size: 1.1rem;
+        }
+
+        .detail-description {
+            font-size: 1rem;
+            color: var(--text-secondary);
+            margin-bottom: 1.5rem;
+        }
+
+        .detail-tip-box {
+            background-color: var(--accent-bg);
+            border: 1px dashed var(--accent);
+            border-radius: 8px;
+            padding: 1rem;
+            margin-top: auto;
+        }
+
+        .detail-tip-title {
+            color: var(--accent);
+            font-weight: 600;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 0.25rem;
+        }
+
+        .detail-tip-text {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+        }
+
+        /* Build & Run Simulator */
+        .simulator-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+        }
+
+        @media (max-width: 900px) {
+            .simulator-container {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .sim-actions {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+            justify-content: center;
+        }
+
+        .sim-step-btn {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            padding: 1.25rem;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            cursor: pointer;
+            text-align: left;
+            transition: var(--transition);
+            width: 100%;
+        }
+
+        .sim-step-btn:hover {
+            border-color: var(--primary);
+            transform: translateX(4px);
+        }
+
+        .sim-step-btn.active {
+            background: rgba(0, 145, 255, 0.08);
+            border-color: var(--primary);
+            box-shadow: 0 4px 15px rgba(0, 145, 255, 0.15);
+        }
+
+        .sim-step-number {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: var(--border-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 0.95rem;
+            transition: var(--transition);
+        }
+
+        .sim-step-btn.active .sim-step-number {
+            background: var(--primary-gradient);
+            color: white;
+        }
+
+        .sim-step-info h4 {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+        }
+
+        .sim-step-info p {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+        }
+
+        /* Terminal Window */
+        .terminal-window {
+            background-color: #030712;
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+            box-shadow: var(--shadow-lg);
+            overflow: hidden;
+            font-family: var(--font-code);
+            display: flex;
+            flex-direction: column;
+            height: 400px;
+        }
+
+        .terminal-body {
+            padding: 1.25rem;
+            font-size: 0.875rem;
+            color: #38bdf8;
+            flex-grow: 1;
+            overflow-y: auto;
+            white-space: pre-wrap;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .terminal-line {
+            display: block;
+            line-height: 1.5;
+        }
+
+        .terminal-input {
+            color: #f3f4f6;
+            margin-bottom: 0.5rem;
+        }
+
+        .terminal-output {
+            color: #9ca3af;
+        }
+
+        .terminal-success {
+            color: #10b981;
+            font-weight: 600;
+        }
+
+        .terminal-highlight {
+            color: #f43f5e;
+        }
+
+        .layer-bar-container {
+            width: 100%;
+            height: 6px;
+            background-color: #1e293b;
+            border-radius: 3px;
+            margin-top: 4px;
+            overflow: hidden;
+            display: none;
+        }
+
+        .layer-bar {
+            height: 100%;
+            width: 0;
+            background: var(--primary-gradient);
+            transition: width 1s linear;
+        }
+
+        /* Cheat Sheet / Generator Tool */
+        .generator-box {
+            display: grid;
+            grid-template-columns: 0.9fr 1.1fr;
+            gap: 2rem;
+        }
+
+        @media (max-width: 900px) {
+            .generator-box {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .form-group {
+            margin-bottom: 1.25rem;
+        }
+
+        .form-group label {
+            display: block;
+            font-weight: 600;
+            font-size: 0.95rem;
+            margin-bottom: 0.5rem;
+            color: var(--text-primary);
+        }
+
+        .form-select, .form-input {
+            width: 100%;
+            padding: 0.75rem;
+            background-color: var(--code-bg);
+            border: 1px solid var(--border-color);
+            color: var(--text-primary);
+            border-radius: 8px;
+            font-family: var(--font-main);
+            font-size: 0.95rem;
+            transition: var(--transition);
+        }
+
+        .form-select:focus, .form-input:focus {
+            border-color: var(--primary);
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(0, 145, 255, 0.15);
+        }
+
+        .checkbox-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+            margin-top: 0.5rem;
+        }
+
+        .checkbox-label {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.95rem;
+            color: var(--text-secondary);
+            cursor: pointer;
+        }
+
+        .checkbox-label input {
+            width: 16px;
+            height: 16px;
+            accent-color: var(--primary);
+        }
+
+        .code-actions {
+            display: flex;
+            gap: 0.75rem;
+            margin-top: 1rem;
+            justify-content: flex-end;
+            padding: 0.75rem 1.25rem;
+            background-color: rgba(0,0,0,0.1);
+            border-top: 1px solid var(--border-color);
+        }
+
+        .btn-sm {
+            padding: 0.5rem 1rem;
+            font-size: 0.875rem;
+            border-radius: 6px;
+        }
+
+        /* Interactive Quiz */
+        .quiz-card {
+            max-width: 700px;
+            margin: 0 auto;
+            text-align: center;
+        }
+
+        .quiz-question {
+            font-size: 1.25rem;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+        }
+
+        .quiz-options {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .quiz-option {
+            background-color: var(--code-bg);
+            border: 1px solid var(--border-color);
+            padding: 1rem 1.5rem;
+            border-radius: 10px;
+            cursor: pointer;
+            text-align: left;
+            font-size: 1rem;
+            transition: var(--transition);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .quiz-option:hover {
+            border-color: var(--primary);
+            transform: translateY(-2px);
+        }
+
+        .quiz-option.correct {
+            background-color: rgba(16, 185, 129, 0.1);
+            border-color: #10b981;
+            color: #10b981;
+            font-weight: 600;
+        }
+
+        .quiz-option.incorrect {
+            background-color: rgba(244, 63, 94, 0.1);
+            border-color: #f43f5e;
+            color: #f43f5e;
+        }
+
+        .quiz-feedback {
+            font-weight: 600;
+            margin-top: 1rem;
+            min-height: 24px;
+            transition: var(--transition);
+        }
+
+        .quiz-score-display {
+            font-size: 1.1rem;
+            color: var(--text-secondary);
+            margin-top: 1rem;
+        }
+
+        /* Footer */
+        footer {
+            padding: 3rem 0;
+            border-top: 1px solid var(--border-color);
+            text-align: center;
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            background-color: var(--bg-secondary);
+        }
+
+        footer p {
+            margin-bottom: 0.5rem;
+        }
+
+        footer a {
+            color: var(--primary);
+            text-decoration: none;
+            transition: var(--transition);
+        }
+
+        footer a:hover {
+            text-decoration: underline;
+        }
+
+        /* SVGs definitions */
+        .svg-defs {
+            position: absolute;
+            width: 0;
+            height: 0;
+            overflow: hidden;
+        }
+
+        /* Toast notification */
+        .toast {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            background-color: #10b981;
+            color: white;
+            padding: 1rem 1.5rem;
+            border-radius: 8px;
+            box-shadow: var(--shadow-lg);
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transform: translateY(150%);
+            transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            z-index: 1000;
+        }
+
+        .toast.show {
+            transform: translateY(0);
+        }
+    </style>
+</head>
+<body>
+
+    <!-- SVG Gradients Definitions -->
+    <svg class="svg-defs">
+        <defs>
+            <linearGradient id="docker-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="#0091ff" />
+                <stop offset="100%" stop-color="#00d2ff" />
+            </linearGradient>
+            <linearGradient id="purple-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="#8b5cf6" />
+                <stop offset="100%" stop-color="#d946ef" />
+            </linearGradient>
+        </defs>
+    </svg>
+
+    <!-- Glow Effects -->
+    <div class="glow-blob glow-blob-1"></div>
+    <div class="glow-blob glow-blob-2"></div>
+
+    <!-- Navigation Header -->
+    <header>
+        <div class="container nav-wrapper">
+            <a href="#" class="logo" id="main-logo">
+                <svg viewBox="0 0 24 24">
+                    <path d="M13.983 9.29c.148-.288.455-.472.788-.472h1.616c.334 0 .64.184.789.472l.969 1.884c.15.289.15.632 0 .92l-.969 1.885a.885.885 0 0 1-.789.472H14.77a.882.882 0 0 1-.788-.472L13.013 12.1a.94.94 0 0 1 0-.92l.97-1.89zM5.772 9.29c.149-.288.456-.472.789-.472h1.616c.333 0 .64.184.789.472l.968 1.884c.15.289.15.632 0 .92l-.968 1.885a.885.885 0 0 1-.789.472H6.561a.882.882 0 0 1-.789-.472L4.803 12.1a.94.94 0 0 1 0-.92l.969-1.89zm4.106 0c.149-.288.456-.472.788-.472h1.617c.333 0 .64.184.789.472l.969 1.884c.15.289.15.632 0 .92l-.969 1.885a.885.885 0 0 1-.789.472H10.666a.882.882 0 0 1-.788-.472L8.91 12.1a.94.94 0 0 1 0-.92l.968-1.89zM1.661 9.29c.149-.288.456-.472.789-.472h1.616c.333 0 .64.184.789.472L5.823 11.174c.15.289.15.632 0 .92l-.968 1.885A.885.885 0 0 1 4.066 14.45H2.45a.882.882 0 0 1-.789-.472L.693 12.1a.94.94 0 0 1 0-.92l.968-1.89zM5.772 4.14c.149-.288.456-.472.789-.472h1.616c.333 0 .64.184.789.472l.968 1.885c.15.288.15.632 0 .92l-.968 1.885a.885.885 0 0 1-.789.472H6.561a.882.882 0 0 1-.789-.472L4.803 6.946a.94.94 0 0 1 0-.92L5.772 4.14zm4.106 0c.149-.288.456-.472.788-.472h1.617c.333 0 .64.184.789.472l.969 1.885c.15.288.15.632 0 .92l-.969 1.885a.885.885 0 0 1-.789.472H10.666a.882.882 0 0 1-.788-.472L8.91 6.946a.94.94 0 0 1 0-.92l.968-1.89z" />
+                    <path d="M23.197 12.984a1.86 1.86 0 0 0-.258-.29c-.066-.062-.128-.124-.194-.183-.341-.303-.795-.512-1.282-.576l-.427-.056c-.035-.005-.072-.01-.107-.015a6.452 6.452 0 0 0-4.095 1.111h-1.617c.231-.416.48-.823.743-1.22l.504-.76c.078-.119.14-.249.186-.388a.933.933 0 0 0-.012-.622.955.955 0 0 0-.244-.396l-1.617-1.6c-.2-.198-.475-.313-.762-.32h-.103a.965.965 0 0 0-.756.326l-.497.5a13.308 13.308 0 0 0-.853 1.01H1.054c-.58 0-1.054.475-1.054 1.054V21.16C0 22.723 1.272 24 2.839 24h15.42a5.74 5.74 0 0 0 5.741-5.74v-4.093c0-.422-.075-.828-.203-1.183zM18.259 22.368H2.839A1.21 1.21 0 0 1 1.63 21.16v-6.953h16.63v4.053a4.113 4.113 0 0 1-4.111 4.11h-.89c-.3 0-.543.243-.543.543v.015c0 .3.243.543.543.543h.89a5.19 5.19 0 0 0 4.11-1.103z" />
+                </svg>
+                DockerGuide
+            </a>
+            <button class="theme-toggle" id="theme-btn" aria-label="Alternar tema escuro/claro">
+                <svg viewBox="0 0 24 24" id="theme-icon">
+                    <!-- Default Dark Theme Icon: Sun -->
+                    <path d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364-6.364l-.707.707M6.343 17.657l-.707.707m0-12.728l.707.707m11.32 11.32l.707-.707M12 7a5 5 0 1 0 0 10 5 5 0 0 0 0-10z" />
+                </svg>
+            </button>
+        </div>
+    </header>
+
+    <!-- Hero Area -->
+    <section class="hero">
+        <div class="container">
+            <div class="badge">
+                <svg width="16" height="16" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd"></path></svg>
+                Leitura em 5 minutos
+            </div>
+            <h1>Simplifique Containers com <span>Dockerfile</span></h1>
+            <p>Aprenda de forma interativa como empacotar suas aplicações, configurar camadas eficientes e executar containers Docker como um profissional.</p>
+            <div class="hero-buttons">
+                <a href="#anatomia" class="btn btn-primary" id="btn-start">Explorar Dockerfile</a>
+                <a href="#execucao" class="btn btn-secondary" id="btn-run">Aprender a Executar</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Introduction Section -->
+    <section id="introducao">
+        <div class="container">
+            <div class="section-header">
+                <h2>O que é um Dockerfile?</h2>
+                <p>A receita de bolo automatizada para a infraestrutura da sua aplicação.</p>
+            </div>
+            <div class="grid-3">
+                <div class="glass-card feature-card">
+                    <div class="feature-icon">
+                        <svg viewBox="0 0 24 24"><path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/></svg>
+                    </div>
+                    <h3>Arquivo de Texto</h3>
+                    <p>Um simples arquivo de texto chamado <code>Dockerfile</code> (sem extensão) contendo comandos ordenados que descrevem o ambiente.</p>
+                </div>
+                <div class="glass-card feature-card">
+                    <div class="feature-icon" style="background: var(--secondary-gradient);">
+                        <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg>
+                    </div>
+                    <h3>Infraestrutura como Código</h3>
+                    <p>Permite rastrear mudanças de dependências, versões de sistemas operacionais e configurações em sistemas de controle de versão como Git.</p>
+                </div>
+                <div class="glass-card feature-card">
+                    <div class="feature-icon">
+                        <svg viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-2 10h-4v4h-2v-4H7v-2h4V7h2v4h4v2z"/></svg>
+                    </div>
+                    <h3>Camadas Imutáveis</h3>
+                    <p>Cada instrução gera uma nova camada imutável no cache do Docker. Se nada mudou, o Docker reaproveita as camadas rapidamente.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Interactive Anatomy Section -->
+    <section id="anatomia" style="background-color: var(--bg-secondary); position: relative;">
+        <div class="container">
+            <div class="section-header">
+                <h2>Anatomia de um Dockerfile</h2>
+                <p>Clique em cada linha do código abaixo para ver o que cada instrução faz no seu container.</p>
+            </div>
+            
+            <div class="dockerfile-explorer">
+                <!-- Left Column: Interactive Code Editor View -->
+                <div class="code-container">
+                    <div class="code-header">
+                        <div class="dots">
+                            <span class="dot dot-red"></span>
+                            <span class="dot dot-yellow"></span>
+                            <span class="dot dot-green"></span>
+                        </div>
+                        <div class="filename">Dockerfile</div>
+                    </div>
+                    <div class="dockerfile-interactive">
+                        <pre><code><span class="code-line active" data-instruction="FROM"><span class="token-keyword">FROM</span> <span class="token-arg">ubuntu:latest</span></span><span class="code-line" data-instruction="BLANK"></span><span class="code-line" data-instruction="ENV"><span class="token-keyword">ENV</span> <span class="token-arg">DEBIAN_FRONTEND=noninteractive</span></span><span class="code-line" data-instruction="BLANK"></span><span class="code-line" data-instruction="RUN1"><span class="token-keyword">RUN</span> <span class="token-arg">apt-get update && apt-get install -y \</span>
+    <span class="token-arg">curl \</span>
+    <span class="token-arg">ca-certificates \</span>
+    <span class="token-arg">sudo \</span>
+    <span class="token-arg">&& rm -rf /var/lib/apt/lists/*</span></span><span class="code-line" data-instruction="BLANK"></span><span class="code-line" data-instruction="RUN2"><span class="token-keyword">RUN</span> <span class="token-arg">curl -fsSL https://antigravity.google/cli/install.sh | bash</span></span><span class="code-line" data-instruction="BLANK"></span><span class="code-line" data-instruction="WORKDIR"><span class="token-keyword">WORKDIR</span> <span class="token-arg">/workspace</span></span><span class="code-line" data-instruction="BLANK"></span><span class="code-line" data-instruction="CMD"><span class="token-keyword">CMD</span> <span class="token-string">["bash"]</span></span></code></pre>
+                    </div>
+                </div>
+
+                <!-- Right Column: Contextual explanations -->
+                <div class="glass-card detail-panel" id="detail-panel">
+                    <div>
+                        <div class="detail-header">
+                            <span class="instruction-tag" id="panel-tag">FROM</span>
+                            <h3 id="panel-title">Imagem Base</h3>
+                        </div>
+                        <p class="detail-description" id="panel-desc">Define a imagem mãe sobre a qual seu container será construído. Quase todo Dockerfile precisa começar com a instrução <code>FROM</code>.</p>
+                    </div>
+                    <div class="detail-tip-box" id="panel-tip-box">
+                        <div class="detail-tip-title" id="panel-tip-title">
+                            <svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"></path></svg>
+                            Dica de Ouro
+                        </div>
+                        <p class="detail-tip-text" id="panel-tip-text">Prefira sempre usar tags de versão específicas como <code>ubuntu:22.04</code> ou imagens otimizadas para produção (como Alpine Linux) em vez de <code>latest</code>, para garantir builds consistentes.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Executing Dockerfiles (Build & Run Simulator) -->
+    <section id="execucao">
+        <div class="container">
+            <div class="section-header">
+                <h2>Como Executar o Dockerfile</h2>
+                <p>Do código ao container rodando. Entenda o ciclo de compilação (Build) e execução (Run).</p>
+            </div>
+
+            <div class="simulator-container">
+                <!-- Selectors -->
+                <div class="sim-actions">
+                    <button class="sim-step-btn active" id="sim-btn-build">
+                        <span class="sim-step-number">1</span>
+                        <div class="sim-step-info">
+                            <h4>1. Construir a Imagem (Build)</h4>
+                            <p>Transforma o Dockerfile em um template empacotado chamado Imagem.</p>
+                        </div>
+                    </button>
+                    <button class="sim-step-btn" id="sim-btn-run-cmd">
+                        <span class="sim-step-number">2</span>
+                        <div class="sim-step-info">
+                            <h4>2. Executar o Container (Run)</h4>
+                            <p>Instancia o template criando um ambiente vivo e isolado.</p>
+                        </div>
+                    </button>
+                    <button class="sim-step-btn" id="sim-btn-inspect">
+                        <span class="sim-step-number">3</span>
+                        <div class="sim-step-info">
+                            <h4>3. Verificações & Status</h4>
+                            <p>Monitore containers ativos e gerencie seus recursos locais.</p>
+                        </div>
+                    </button>
+                </div>
+
+                <!-- Live Terminal Sandbox -->
+                <div class="terminal-window">
+                    <div class="code-header">
+                        <div class="dots">
+                            <span class="dot dot-red"></span>
+                            <span class="dot dot-yellow"></span>
+                            <span class="dot dot-green"></span>
+                        </div>
+                        <div class="filename">Terminal do Desenvolvedor</div>
+                    </div>
+                    <div class="terminal-body" id="terminal-body">
+                        <span class="terminal-line terminal-input">$ docker build -t meu-container:v1 .</span>
+                        <span class="terminal-line terminal-output">Sending build context to Docker daemon  3.072kB</span>
+                        <span class="terminal-line terminal-output">Step 1/6 : FROM ubuntu:latest</span>
+                        <span class="terminal-line terminal-output"> ---> f975c5035748</span>
+                        <span class="terminal-line terminal-output">Step 2/6 : ENV DEBIAN_FRONTEND=noninteractive</span>
+                        <span class="terminal-line terminal-output"> ---> Running in 8cfb61a3ecba</span>
+                        <span class="layer-bar-container" id="build-progress-container"><span class="layer-bar" id="build-progress"></span></span>
+                        <span class="terminal-line terminal-output" id="build-output-extra"></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Custom Dockerfile Generator -->
+    <section id="gerador" style="background-color: var(--bg-secondary);">
+        <div class="container">
+            <div class="section-header">
+                <h2>Gerador Inteligente de Dockerfile</h2>
+                <p>Configure os parâmetros abaixo e gere um Dockerfile sob medida para o seu projeto.</p>
+            </div>
+
+            <div class="glass-card generator-box">
+                <!-- Generator Controls -->
+                <div id="generator-form">
+                    <div class="form-group">
+                        <label for="gen-tech">Tecnologia / Ambiente</label>
+                        <select class="form-select" id="gen-tech">
+                            <option value="node">Node.js (Aplicações Web/APIs)</option>
+                            <option value="python">Python (Scripts / Data Science)</option>
+                            <option value="nginx">Nginx (Servidor Estático / HTML / React)</option>
+                            <option value="ubuntu">Ubuntu Básico (Customizado)</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="gen-workdir">Diretório de Trabalho (WORKDIR)</label>
+                        <input type="text" class="form-input" id="gen-workdir" value="/app">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Funcionalidades Extras</label>
+                        <div class="checkbox-group">
+                            <label class="checkbox-label">
+                                <input type="checkbox" id="gen-expose" checked> Expor Porta de Rede (Ex: 3000 / 80)
+                            </label>
+                            <label class="checkbox-label">
+                                <input type="checkbox" id="gen-env" checked> Adicionar Variáveis de Ambiente (ENV)
+                            </label>
+                            <label class="checkbox-label">
+                                <input type="checkbox" id="gen-copy" checked> Copiar arquivos locais automaticamente
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Output Code Preview -->
+                <div class="code-container" style="display: flex; flex-direction: column; height: 100%;">
+                    <div class="code-header">
+                        <div class="dots">
+                            <span class="dot dot-red"></span>
+                            <span class="dot dot-yellow"></span>
+                            <span class="dot dot-green"></span>
+                        </div>
+                        <div class="filename">Dockerfile Gerado</div>
+                    </div>
+                    <div class="dockerfile-interactive" style="flex-grow: 1; padding: 1.5rem; background-color: var(--code-bg);">
+                        <pre><code id="generated-code" style="color: #cbd5e1; display: block; font-family: var(--font-code); font-size: 0.9rem; line-height: 1.5;"></code></pre>
+                    </div>
+                    <div class="code-actions">
+                        <button class="btn btn-secondary btn-sm" id="btn-copy-code">Copiar</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Interactive Quiz -->
+    <section id="quiz">
+        <div class="container">
+            <div class="section-header">
+                <h2>Teste seus Conhecimentos</h2>
+                <p>Responda às perguntas sobre Dockerfile e veja se você está pronto para subir seus containers em produção!</p>
+            </div>
+
+            <div class="glass-card quiz-card">
+                <div class="quiz-question" id="quiz-question">Carregando pergunta...</div>
+                <div class="quiz-options" id="quiz-options">
+                    <!-- Dynamic Options -->
+                </div>
+                <div class="quiz-feedback" id="quiz-feedback"></div>
+                <div class="quiz-score-display" id="quiz-score">Pontuação: 0/3</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <p>Guia Dockerfile Interativo desenvolvido com ❤️ para capacitar novos desenvolvedores.</p>
+            <p>&copy; 2026 DockerGuide. Todos os direitos reservados. Acesse mais no <a href="https://docs.docker.com/" target="_blank">Portal Oficial do Docker</a>.</p>
+        </div>
+    </footer>
+
+    <!-- Toast Component -->
+    <div class="toast" id="toast">
+        <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+        <span id="toast-text">Código copiado com sucesso!</span>
+    </div>
+
+    <!-- Interactive JS Script -->
+    <script>
+        // Theme Toggle Logic
+        const themeBtn = document.getElementById('theme-btn');
+        const themeIcon = document.getElementById('theme-icon');
+        const body = document.body;
+
+        themeBtn.addEventListener('click', () => {
+            const isLight = body.getAttribute('data-theme') === 'light';
+            if (isLight) {
+                body.removeAttribute('data-theme');
+                themeIcon.innerHTML = `<path d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364-6.364l-.707.707M6.343 17.657l-.707.707m0-12.728l.707.707m11.32 11.32l.707-.707M12 7a5 5 0 1 0 0 10 5 5 0 0 0 0-10z" />`;
+            } else {
+                body.setAttribute('data-theme', 'light');
+                themeIcon.innerHTML = `<path stroke-linecap="round" stroke-linejoin="round" d="M21.752 15.002A9.718 9.718 0 0118 15.75c-5.385 0-9.75-4.365-9.75-9.75 0-1.33.266-2.597.748-3.752A9.753 9.753 0 003 11.25C3 16.635 7.365 21 12.75 21a9.753 9.753 0 009.002-5.998z" />`;
+            }
+        });
+
+        // Interactive Dockerfile Details Data
+        const instructionData = {
+            'FROM': {
+                tag: 'FROM',
+                title: 'Definição da Imagem Base',
+                desc: 'Todo Dockerfile começa obrigatoriamente com a instrução <code>FROM</code> (salvo raras exceções). Ela especifica a imagem de origem a partir da qual você criará o seu container. Pode ser um sistema operacional limpo (como Ubuntu, Alpine) ou uma imagem com runtime instalado (Node, Python, Go).',
+                tip: 'Use sempre tags semânticas estáveis (ex: <code>node:18-alpine</code>) em vez de <code>latest</code>, para evitar que atualizações automáticas quebrem seu build em produção.'
+            },
+            'ENV': {
+                tag: 'ENV',
+                title: 'Variáveis de Ambiente',
+                desc: 'Define variáveis de ambiente que estarão acessíveis tanto durante o processo de construção da imagem (build) quanto na execução dos containers (run). No exemplo, definimos <code>DEBIAN_FRONTEND=noninteractive</code> para evitar perguntas interativas ao instalar pacotes.',
+                tip: 'Essas variáveis persistem no container final. Se precisar de variáveis apenas durante o tempo de compilação, use a instrução <code>ARG</code> em seu lugar.'
+            },
+            'RUN1': {
+                tag: 'RUN',
+                title: 'Execução de Comandos (Instalação)',
+                desc: 'A instrução <code>RUN</code> executa comandos dentro do container durante a construção da imagem, salvando os resultados em uma nova camada. Aqui, atualizamos o gerenciador de pacotes <code>apt-get</code> e instalamos ferramentas básicas (curl, ca-certificates, sudo).',
+                tip: 'Combine comandos com <code>&&</code> e limpe os caches de pacotes no final do mesmo comando (ex: <code>rm -rf /var/lib/apt/lists/*</code>) para manter a imagem leve e compacta!'
+            },
+            'RUN2': {
+                tag: 'RUN',
+                title: 'Instalação de Aplicações e Ferramentas',
+                desc: 'Executa comandos adicionais em uma nova camada. Neste caso específico, baixa via <code>curl</code> o instalador do Antigravity CLI e executa o script do instalador no terminal bash interno do container.',
+                tip: 'Dividir instalações em múltiplos comandos <code>RUN</code> é aceitável, mas lembre-se que cada <code>RUN</code> cria uma nova camada. Agrupe comandos correlacionados sempre que possível.'
+            },
+            'WORKDIR': {
+                tag: 'WORKDIR',
+                title: 'Diretório de Trabalho',
+                desc: 'Define a pasta padrão ativa dentro do container para todas as instruções subsequentes (como <code>RUN</code>, <code>COPY</code>, <code>CMD</code> ou <code>ENTRYPOINT</code>). Se o diretório especificado não existir, o Docker irá criá-lo automaticamente.',
+                tip: 'Evite fazer operações no diretório raiz <code>/</code> do container. Use sempre <code>WORKDIR</code> para manter seus arquivos organizados em pastas estruturadas (ex: <code>/app</code>).'
+            },
+            'CMD': {
+                tag: 'CMD',
+                title: 'Comando Padrão do Container',
+                desc: 'Define o comando padrão que será executado automaticamente assim que o seu container for iniciado. No exemplo, definimos que o container iniciará um shell <code>bash</code> interativo assim que subir.',
+                tip: 'Diferente de <code>RUN</code>, o <code>CMD</code> não roda no momento do build. Só pode haver uma instrução <code>CMD</code> ativa no Dockerfile. Se houver mais de uma, apenas a última será executada.'
+            },
+            'BLANK': {
+                tag: 'DOCKERFILE',
+                title: 'Linha em Branco ou Comentário',
+                desc: 'Espaços em branco ajudam a manter a legibilidade estrutural do seu Dockerfile. Comentários podem ser adicionados utilizando o caractere <code>#</code> no início da linha.',
+                tip: 'Mantenha o Dockerfile limpo e organizado. Um código bem documentado evita falhas de segurança e facilita o trabalho em equipe.'
+            }
+        };
+
+        // Explorer click handler
+        const codeLines = document.querySelectorAll('.code-line');
+        const panelTag = document.getElementById('panel-tag');
+        const panelTitle = document.getElementById('panel-title');
+        const panelDesc = document.getElementById('panel-desc');
+        const panelTipText = document.getElementById('panel-tip-text');
+
+        codeLines.forEach(line => {
+            line.addEventListener('click', () => {
+                // remove active class from all
+                codeLines.forEach(l => l.classList.remove('active'));
+                
+                // add active class to clicked
+                line.classList.add('active');
+
+                const instruction = line.getAttribute('data-instruction');
+                const data = instructionData[instruction];
+
+                if (data) {
+                    panelTag.textContent = data.tag;
+                    panelTitle.textContent = data.title;
+                    panelDesc.innerHTML = data.desc;
+                    panelTipText.innerHTML = data.tip;
+                }
+            });
+        });
+
+        // Terminal Simulator Logic
+        const terminalBody = document.getElementById('terminal-body');
+        const buildBtn = document.getElementById('sim-btn-build');
+        const runBtn = document.getElementById('sim-btn-run-cmd');
+        const inspectBtn = document.getElementById('sim-btn-inspect');
+
+        const simulatorContent = {
+            build: `
+<span class="terminal-line terminal-input">$ docker build -t meu-container:v1 .</span>
+<span class="terminal-line terminal-output">Sending build context to Docker daemon  3.072kB</span>
+<span class="terminal-line terminal-output">Step 1/6 : FROM ubuntu:latest</span>
+<span class="terminal-line terminal-output"> ---> f975c5035748</span>
+<span class="terminal-line terminal-output">Step 2/6 : ENV DEBIAN_FRONTEND=noninteractive</span>
+<span class="terminal-line terminal-output"> ---> Running in 8cfb61a3ecba</span>
+<span class="layer-bar-container" id="build-progress-container" style="display: block;"><span class="layer-bar" id="build-progress" style="width: 100%; transition: width 1.5s cubic-bezier(0.4, 0, 0.2, 1);"></span></span>
+<span class="terminal-line terminal-output"> ---> 19d854ea74bf</span>
+<span class="terminal-line terminal-output">Step 3/6 : RUN apt-get update && apt-get install -y curl ca-certificates...</span>
+<span class="terminal-line terminal-output"> ---> Running in a2bf12cf3452</span>
+<span class="terminal-line terminal-output">Step 4/6 : RUN curl -fsSL https://antigravity.google/cli/install.sh | bash</span>
+<span class="terminal-line terminal-output"> ---> Running in d820df38a1ef</span>
+<span class="terminal-line terminal-output">Step 5/6 : WORKDIR /workspace</span>
+<span class="terminal-line terminal-output"> ---> Running in bcf9e120da82</span>
+<span class="terminal-line terminal-output">Step 6/6 : CMD ["bash"]</span>
+<span class="terminal-line terminal-output"> ---> Running in a984eb82cf12</span>
+<span class="terminal-line terminal-success">Successfully built a984eb82cf12</span>
+<span class="terminal-line terminal-success">Successfully tagged meu-container:v1</span>
+`,
+            run: `
+<span class="terminal-line terminal-input">$ docker run -it --name meu-app meu-container:v1</span>
+<span class="terminal-line terminal-output">root@a984eb82cf12:/workspace# _</span>
+<span class="terminal-line terminal-output">root@a984eb82cf12:/workspace# ls -la</span>
+<span class="terminal-line terminal-output">total 12</span>
+<span class="terminal-line terminal-output">drwxr-xr-x 2 root root 4096 May 20 14:15 .</span>
+<span class="terminal-line terminal-output">drwxr-xr-x 1 root root 4096 May 20 14:15 ..</span>
+<span class="terminal-line terminal-output">root@a984eb82cf12:/workspace# echo "Hello Docker World!"</span>
+<span class="terminal-line terminal-output terminal-success">Hello Docker World!</span>
+<span class="terminal-line terminal-output">root@a984eb82cf12:/workspace# exit</span>
+<span class="terminal-line terminal-output">exit</span>
+<span class="terminal-line terminal-output">Container meu-app terminado.</span>
+`,
+            inspect: `
+<span class="terminal-line terminal-input">$ docker ps -a</span>
+<span class="terminal-line terminal-output">CONTAINER ID   IMAGE              COMMAND    CREATED          STATUS                      PORTS     NAMES</span>
+<span class="terminal-line terminal-output">a984eb82cf12   meu-container:v1   "bash"     48 seconds ago   Exited (0) 5 seconds ago             meu-app</span>
+<span class="terminal-line terminal-input">$ docker images</span>
+<span class="terminal-line terminal-output">REPOSITORY      TAG       IMAGE ID       CREATED          SIZE</span>
+<span class="terminal-line terminal-output">meu-container   v1        a984eb82cf12   2 minutes ago    284MB</span>
+<span class="terminal-line terminal-output">ubuntu          latest    f975c5035748   4 weeks ago      77.8MB</span>
+`
+        };
+
+        function setTerminalContent(type) {
+            terminalBody.innerHTML = simulatorContent[type];
+            // If it's build, reset the progress animation for premium effect
+            if (type === 'build') {
+                const bar = document.getElementById('build-progress');
+                bar.style.width = '0%';
+                setTimeout(() => {
+                    bar.style.width = '100%';
+                }, 50);
+            }
+        }
+
+        buildBtn.addEventListener('click', () => {
+            document.querySelectorAll('.sim-step-btn').forEach(btn => btn.classList.remove('active'));
+            buildBtn.classList.add('active');
+            setTerminalContent('build');
+        });
+
+        runBtn.addEventListener('click', () => {
+            document.querySelectorAll('.sim-step-btn').forEach(btn => btn.classList.remove('active'));
+            runBtn.classList.add('active');
+            setTerminalContent('run');
+        });
+
+        inspectBtn.addEventListener('click', () => {
+            document.querySelectorAll('.sim-step-btn').forEach(btn => btn.classList.remove('active'));
+            inspectBtn.classList.add('active');
+            setTerminalContent('inspect');
+        });
+
+        // Initialize terminal content
+        setTerminalContent('build');
+
+        // Custom Dockerfile Generator Logic
+        const genTech = document.getElementById('gen-tech');
+        const genWorkdir = document.getElementById('gen-workdir');
+        const genExpose = document.getElementById('gen-expose');
+        const genEnv = document.getElementById('gen-env');
+        const genCopy = document.getElementById('gen-copy');
+        const generatedCode = document.getElementById('generated-code');
+        const btnCopyCode = document.getElementById('btn-copy-code');
+        const toast = document.getElementById('toast');
+
+        function updateDockerfile() {
+            const tech = genTech.value;
+            const workdir = genWorkdir.value || '/app';
+            const expose = genExpose.checked;
+            const env = genEnv.checked;
+            const copy = genCopy.checked;
+
+            let code = '';
+
+            if (tech === 'node') {
+                code += `# 1. Define imagem base oficial do Node.js leve\nFROM node:18-alpine\n\n`;
+                if (env) {
+                    code += `# Define ambiente como produção\nENV NODE_ENV=production\n\n`;
+                }
+                code += `# Define diretório padrão da aplicação\nWORKDIR ${workdir}\n\n`;
+                if (copy) {
+                    code += `# Copia lista de dependências primeiro (otimiza cache de build)\nCOPY package*.json ./\nRUN npm ci --only=production\n\n# Copia o restante dos códigos locais\nCOPY . .\n\n`;
+                } else {
+                    code += `# Instala dependências\nRUN npm install\n\n`;
+                }
+                if (expose) {
+                    code += `# Comunica a porta exposta da aplicação\nEXPOSE 3000\n\n`;
+                }
+                code += `# Comando para subir o app em produção\nCMD ["node", "index.js"]`;
+            } else if (tech === 'python') {
+                code += `# 1. Define imagem base do Python oficial leve\nFROM python:3.10-slim\n\n`;
+                if (env) {
+                    code += `# Desativa escrita de bytecode (.pyc) e otimiza outputs nos logs\nENV PYTHONDONTWRITEBYTECODE=1\nENV PYTHONUNBUFFERED=1\n\n`;
+                }
+                code += `# Define diretório de trabalho\nWORKDIR ${workdir}\n\n`;
+                if (copy) {
+                    code += `# Copia e instala requisitos de pacotes\nCOPY requirements.txt .\nRUN pip install --no-cache-dir -r requirements.txt\n\n# Copia o código da aplicação\nCOPY . .\n\n`;
+                }
+                if (expose) {
+                    code += `# Expondo a porta do servidor web Python (ex: Gunicorn/Uvicorn)\nEXPOSE 8000\n\n`;
+                }
+                code += `# Executa script principal do projeto\nCMD ["python", "app.py"]`;
+            } else if (tech === 'nginx') {
+                code += `# Imagem leve de alta performance do Servidor Nginx\nFROM nginx:alpine\n\n`;
+                code += `# Define pasta de build onde o Nginx entrega conteúdos estáticos\nWORKDIR ${workdir}\n\n`;
+                if (copy) {
+                    code += `# Copia seus arquivos estáticos locais (HTML, CSS, JS) para o diretório padrão\nCOPY . /usr/share/nginx/html\n\n`;
+                }
+                if (expose) {
+                    code += `# Porta padrão para servidores web HTTP\nEXPOSE 80\n\n`;
+                }
+                code += `# Sobe o servidor web Nginx em primeiro plano (foreground)\nCMD ["nginx", "-g", "daemon off;"]`;
+            } else if (tech === 'ubuntu') {
+                code += `# Imagem Ubuntu Linux oficial de última geração\nFROM ubuntu:22.04\n\n`;
+                if (env) {
+                    code += `# Modo não-interativo para evitar pop-ups no build\nENV DEBIAN_FRONTEND=noninteractive\n\n`;
+                }
+                code += `# Atualiza repositórios do sistema e instala ferramentas de rede e compiladores\nRUN apt-get update && apt-get install -y \\\n    curl \\\n    git \\\n    build-essential \\\n    && rm -rf /var/lib/apt/lists/*\n\n`;
+                code += `# Define pasta de arquivos\nWORKDIR ${workdir}\n\n`;
+                code += `# Executa interpretador bash interativo por padrão\nCMD ["/bin/bash"]`;
+            }
+
+            generatedCode.textContent = code;
+        }
+
+        // Add listeners
+        [genTech, genWorkdir, genExpose, genEnv, genCopy].forEach(elem => {
+            elem.addEventListener('change', updateDockerfile);
+            elem.addEventListener('input', updateDockerfile);
+        });
+
+        // Initialize generator
+        updateDockerfile();
+
+        // Copy Code Functionality
+        btnCopyCode.addEventListener('click', () => {
+            const code = generatedCode.textContent;
+            navigator.clipboard.writeText(code).then(() => {
+                showToast("Dockerfile copiado com sucesso!");
+            }).catch(err => {
+                showToast("Erro ao copiar arquivo.");
+            });
+        });
+
+        function showToast(message) {
+            document.getElementById('toast-text').textContent = message;
+            toast.classList.add('show');
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 3000);
+        }
+
+        // Quiz Logic
+        const quizQuestions = [
+            {
+                q: "Qual instrução define a base do sistema operacional do container?",
+                options: ["RUN", "FROM", "WORKDIR", "ENV"],
+                correct: 1,
+                feedback: "Correto! FROM é a primeira instrução necessária para definir a imagem base inicial."
+            },
+            {
+                q: "Qual a principal diferença entre as instruções RUN e CMD?",
+                options: [
+                    "RUN cria uma nova imagem, CMD cria pastas.",
+                    "CMD roda durante o Build, RUN roda quando o container inicia.",
+                    "RUN executa durante o Build criando camadas, CMD define o comando padrão de inicialização.",
+                    "Não há diferença, realizam a mesma atividade."
+                ],
+                correct: 2,
+                feedback: "Excelente! RUN é executado na hora de construir (Build). CMD define apenas o gatilho inicial ao criar o container vivo."
+            },
+            {
+                q: "Como reduzir drasticamente o tamanho final de imagens do Docker?",
+                options: [
+                    "Evitando escrever comentários no Dockerfile.",
+                    "Usando imagens base leves (Alpine/Slim) e limpando caches de pacotes no mesmo comando RUN.",
+                    "Utilizando a versão do Ubuntu mais pesada disponível.",
+                    "Usando apenas a instrução COPY sem RUN."
+                ],
+                correct: 1,
+                feedback: "Certíssimo! Imagens leves e limpezas de caches de pacotes mantêm sua imagem compacta e rápida para deploy!"
+            }
+        ];
+
+        let currentQuestion = 0;
+        let score = 0;
+
+        function loadQuestion() {
+            if (currentQuestion >= quizQuestions.length) {
+                // Game Over Screen
+                document.getElementById('quiz-question').innerHTML = `🎉 Parabéns! Você completou o Quiz.`;
+                document.getElementById('quiz-options').innerHTML = '';
+                document.getElementById('quiz-feedback').innerHTML = `Sua pontuação final foi de <strong>${score} de ${quizQuestions.length}</strong>! Você está pronto para os containers.`;
+                document.getElementById('quiz-score').textContent = `Concluído: ${score}/${quizQuestions.length}`;
+                return;
+            }
+
+            const data = quizQuestions[currentQuestion];
+            document.getElementById('quiz-question').textContent = `${currentQuestion + 1}. ${data.q}`;
+            document.getElementById('quiz-score').textContent = `Pontuação: ${score}/${quizQuestions.length}`;
+            document.getElementById('quiz-feedback').textContent = '';
+
+            const optionsContainer = document.getElementById('quiz-options');
+            optionsContainer.innerHTML = '';
+
+            data.options.forEach((opt, idx) => {
+                const btn = document.createElement('div');
+                btn.className = 'quiz-option';
+                btn.innerHTML = `<span>${opt}</span>`;
+                btn.addEventListener('click', () => selectAnswer(idx));
+                optionsContainer.appendChild(btn);
+            });
+        }
+
+        function selectAnswer(selectedIndex) {
+            const data = quizQuestions[currentQuestion];
+            const options = document.querySelectorAll('.quiz-option');
+
+            // Disable all options
+            options.forEach((opt, idx) => {
+                opt.style.pointerEvents = 'none';
+                if (idx === data.correct) {
+                    opt.classList.add('correct');
+                } else if (idx === selectedIndex) {
+                    opt.classList.add('incorrect');
+                }
+            });
+
+            const feedback = document.getElementById('quiz-feedback');
+            if (selectedIndex === data.correct) {
+                score++;
+                feedback.textContent = data.feedback;
+                feedback.style.color = '#10b981';
+            } else {
+                feedback.textContent = `Que pena! A resposta correta era: ${data.options[data.correct]}`;
+                feedback.style.color = '#f43f5e';
+            }
+
+            setTimeout(() => {
+                currentQuestion++;
+                loadQuestion();
+            }, 2500);
+        }
+
+        // Start Quiz
+        loadQuestion();
+
+    </script>
+</body>
+</html>

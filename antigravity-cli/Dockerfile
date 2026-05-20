@@ -1,15 +1,14 @@
-FROM ubuntu
+FROM ubuntu:latest
 
 ENV DEBIAN_FRONTEND=noninteractive
 
 RUN apt-get update && apt-get install -y \
     curl \
-    gnupg \
-    && curl -fsSL https://deb.nodesource.com/setup_20.x | bash - \
-    && apt-get install -y nodejs \
+    ca-certificates \
+    sudo \
     && rm -rf /var/lib/apt/lists/*
 
-RUN npm install -g @google/gemini-cli
+RUN curl -fsSL https://antigravity.google/cli/install.sh | bash
 
 WORKDIR /workspace
 
