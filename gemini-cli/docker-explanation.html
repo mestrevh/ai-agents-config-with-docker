@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Explicação do Dockerfile</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f4f4f9;
+        }
+        header {
+            background: #2c3e50;
+            color: #fff;
+            padding: 1rem;
+            text-align: center;
+            border-radius: 8px 8px 0 0;
+            margin-bottom: 20px;
+        }
+        .container {
+            background: #fff;
+            padding: 30px;
+            border-radius: 0 0 8px 8px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        h1 { margin: 0; }
+        h2 { color: #2c3e50; border-bottom: 2px solid #3498db; padding-bottom: 10px; }
+        code {
+            background: #f8f9fa;
+            border: 1px solid #e1e4e8;
+            border-radius: 4px;
+            padding: 2px 5px;
+            font-family: 'Courier New', Courier, monospace;
+            color: #d63384;
+        }
+        pre {
+            background: #282c34;
+            color: #abb2bf;
+            padding: 15px;
+            border-radius: 5px;
+            overflow-x: auto;
+        }
+        .step {
+            margin-bottom: 20px;
+            padding-left: 15px;
+            border-left: 4px solid #3498db;
+        }
+        .step-title {
+            font-weight: bold;
+            font-size: 1.1em;
+            color: #2980b9;
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <h1>Explicação do Dockerfile</h1>
+</header>
+
+<div class="container">
+    <p>Este documento explica como o arquivo <code>Dockerfile</code> está configurado para construir a imagem deste ambiente.</p>
+
+    <h2>Conteúdo Original</h2>
+    <pre>
+FROM ubuntu
+
+ENV DEBIAN_FRONTEND=noninteractive
+
+RUN apt-get update && apt-get install -y \
+    curl \
+    gnupg \
+    && curl -fsSL https://deb.nodesource.com/setup_20.x | bash - \
+    && apt-get install -y nodejs \
+    && rm -rf /var/lib/apt/lists/*
+
+RUN npm install -g @google/gemini-cli
+
+WORKDIR /workspace
+
+CMD ["bash"]</pre>
+
+    <h2>Passo a Passo</h2>
+
+    <div class="step">
+        <div class="step-title">1. Imagem Base</div>
+        <p><code>FROM ubuntu</code>: Utiliza a versão mais recente do Ubuntu como sistema operacional base.</p>
+    </div>
+
+    <div class="step">
+        <div class="step-title">2. Configuração de Ambiente</div>
+        <p><code>ENV DEBIAN_FRONTEND=noninteractive</code>: Define uma variável de ambiente para que as instalações de pacotes não solicitem intervenção do usuário (prompts).</p>
+    </div>
+
+    <div class="step">
+        <div class="step-title">3. Instalação do Node.js</div>
+        <p>O comando <code>RUN</code> executa uma série de operações:</p>
+        <ul>
+            <li>Atualiza a lista de pacotes (<code>apt-get update</code>).</li>
+            <li>Instala dependências básicas (<code>curl</code>, <code>gnupg</code>).</li>
+            <li>Configura o repositório da <strong>NodeSource</strong> para o Node.js versão 20.x.</li>
+            <li>Instala o <code>nodejs</code>.</li>
+            <li>Limpa os arquivos temporários do cache para reduzir o tamanho da imagem.</li>
+        </ul>
+    </div>
+
+    <div class="step">
+        <div class="step-title">4. Instalação do Gemini CLI</div>
+        <p><code>RUN npm install -g @google/gemini-cli</code>: Instala globalmente a interface de linha de comando do Gemini utilizando o gerenciador de pacotes do Node.js.</p>
+    </div>
+
+    <div class="step">
+        <div class="step-title">5. Diretório de Trabalho</div>
+        <p><code>WORKDIR /workspace</code>: Define <code>/workspace</code> como o diretório onde os comandos serão executados por padrão dentro do container.</p>
+    </div>
+
+    <div class="step">
+        <div class="step-title">6. Comando Padrão</div>
+        <p><code>CMD ["bash"]</code>: Inicia o shell <code>bash</code> automaticamente quando o container é iniciado.</p>
+    </div>
+</div>
+
+</body>
+</html>
