@@ -325,6 +325,22 @@
             box-shadow: 0 15px 40px rgba(139, 92, 246, 0.15);
         }
 
+        .agent-card-claude::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            right: 0;
+            width: 120px;
+            height: 120px;
+            background: radial-gradient(circle, rgba(204, 107, 73, 0.15) 0%, rgba(0,0,0,0) 70%);
+            border-radius: 50%;
+            transition: var(--transition);
+        }
+
+        .agent-card-claude:hover {
+            box-shadow: 0 15px 40px rgba(204, 107, 73, 0.15);
+        }
+
         .agent-card:hover::after {
             transform: scale(1.4);
         }
@@ -358,6 +374,12 @@
             color: #d946ef;
         }
 
+        .agent-card-claude .agent-icon-container {
+            background: linear-gradient(135deg, rgba(204, 107, 73, 0.1) 0%, rgba(252, 163, 77, 0.2) 100%);
+            border: 1px solid rgba(252, 163, 77, 0.3);
+            color: #fca34d;
+        }
+
         .agent-tag {
             font-size: 0.75rem;
             font-weight: 600;
@@ -377,6 +399,12 @@
             background: rgba(139, 92, 246, 0.12);
             color: #c084fc;
             border: 1px solid rgba(139, 92, 246, 0.2);
+        }
+
+        .agent-card-claude .agent-tag {
+            background: rgba(204, 107, 73, 0.12);
+            color: #fca34d;
+            border: 1px solid rgba(204, 107, 73, 0.2);
         }
 
         .agent-title {
@@ -404,6 +432,7 @@
 
         .agent-card-antigravity .agent-footer { color: var(--primary); }
         .agent-card-gemini .agent-footer { color: #d946ef; }
+        .agent-card-claude .agent-footer { color: #fca34d; }
 
         .agent-card:hover .agent-footer {
             gap: 14px;
@@ -729,6 +758,26 @@
                         <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
                     </div>
                 </a>
+
+                <!-- Card Claude Code -->
+                <a href="./claude-code/index.html" class="agent-card agent-card-claude">
+                    <div>
+                        <div class="agent-header">
+                            <div class="agent-icon-container">
+                                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line></svg>
+                            </div>
+                            <span class="agent-tag">Assistente</span>
+                        </div>
+                        <h3 class="agent-title">Claude Code</h3>
+                        <p class="agent-desc">
+                            O assistente de programação agentivo de terminal da Anthropic. Veja a explicação detalhada de como rodar o Claude Code em um container Ubuntu isolado com suporte completo a Git e Node.
+                        </p>
+                    </div>
+                    <div class="agent-footer">
+                        <span>Acessar Explicação</span>
+                        <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                    </div>
+                </a>
             </div>
         </section>
 
@@ -787,6 +836,26 @@
                             <svg class="icon-copy" viewBox="0 0 24 24"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2m4-2v4h4V2m-8 8h8m-8 4h8m-8 4h4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg>
                         </button>
                     </div>
+
+                    <div class="command-box">
+                        <div class="command-label">
+                            <span>Construir Imagem Claude Code</span>
+                        </div>
+                        <div class="command-code" id="cmd-claude-build">docker build -t claude-code ./claude-code</div>
+                        <button class="btn-copy" onclick="copyCommand('cmd-claude-build', this)" title="Copiar Comando">
+                            <svg class="icon-copy" viewBox="0 0 24 24"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2m4-2v4h4V2m-8 8h8m-8 4h8m-8 4h4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg>
+                        </button>
+                    </div>
+
+                    <div class="command-box">
+                        <div class="command-label">
+                            <span>Executar Claude Code de forma interativa</span>
+                        </div>
+                        <div class="command-code" id="cmd-claude-run">docker run -it --rm -v $(pwd):/workspace claude-code</div>
+                        <button class="btn-copy" onclick="copyCommand('cmd-claude-run', this)" title="Copiar Comando">
+                            <svg class="icon-copy" viewBox="0 0 24 24"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2m4-2v4h4V2m-8 8h8m-8 4h8m-8 4h4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg>
+                        </button>
+                    </div>
                 </div>
             </div>
         </section>
@@ -832,6 +901,7 @@
             <div class="footer-links">
                 <a href="./antigravity-cli/index.html" class="footer-link">Antigravity CLI</a>
                 <a href="./gemini-cli/index.html" class="footer-link">Gemini CLI</a>
+                <a href="./claude-code/index.html" class="footer-link">Claude Code</a>
                 <a href="https://github.com/mestrevh/ai-agents-config-with-docker" target="_blank" rel="noopener noreferrer" class="footer-link">GitHub</a>
             </div>
         </footer>
