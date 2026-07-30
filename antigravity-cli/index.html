@@ -1005,7 +1005,7 @@
                         <div class="filename">Dockerfile</div>
                     </div>
                     <div class="dockerfile-interactive">
-                        <pre><code><span class="code-line active" data-instruction="FROM"><span class="token-keyword">FROM</span> <span class="token-arg">ubuntu:latest</span></span><span class="code-line" data-instruction="BLANK"></span><span class="code-line" data-instruction="ENV"><span class="token-keyword">ENV</span> <span class="token-arg">DEBIAN_FRONTEND=noninteractive</span></span><span class="code-line" data-instruction="BLANK"></span><span class="code-line" data-instruction="RUN1"><span class="token-keyword">RUN</span> <span class="token-arg">apt-get update && apt-get install -y \</span>
+                        <pre><code><span class="code-line active" data-instruction="FROM"><span class="token-keyword">FROM</span> <span class="token-arg">ubuntu:latest</span></span><span class="code-line" data-instruction="BLANK"></span><span class="code-line" data-instruction="ENV"><span class="token-keyword">ENV</span> <span class="token-arg">DEBIAN_FRONTEND=noninteractive</span></span><span class="code-line" data-instruction="ENV"><span class="token-keyword">ENV</span> <span class="token-arg">PATH="/root/.local/bin:${PATH}"</span></span><span class="code-line" data-instruction="BLANK"></span><span class="code-line" data-instruction="RUN1"><span class="token-keyword">RUN</span> <span class="token-arg">apt-get update && apt-get install -y \</span>
     <span class="token-arg">curl \</span>
     <span class="token-arg">ca-certificates \</span>
     <span class="token-arg">sudo \</span>
