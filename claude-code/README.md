@@ -1,8 +1,32 @@
-# Funcionamento com chave de api
+# Claude Code - Docker Setup
 
-Uma alternativa para utilizar o claude code com chaves de api externas
+Ambiente de containerização isolado para o **Claude Code** (`@anthropic-ai/claude-code`).
 
-## Openrouter
+## Build da Imagem
+
+```bash
+docker build -t claude-code ./claude-code
+```
+
+## Execução Interativa (com Mapeamento de Volume)
+
+Para que os arquivos locais do seu projeto apareçam em `/workspace`:
+
+### Linux / WSL / Bash
+```bash
+docker run -it --rm -v $(pwd):/workspace claude-code
+```
+
+### PowerShell (Windows)
+```powershell
+docker run -it --rm -v ${PWD}:/workspace claude-code
+```
+
+---
+
+# Funcionamento com chave de API externa
+
+## OpenRouter
 
 ```bash
 export ANTHROPIC_BASE_URL="https://openrouter.ai/api/v1"
@@ -10,12 +34,14 @@ export ANTHROPIC_API_KEY="sk-or-sua-chave-openrouter"
 claude --model google/gemini-2.5-pro
 ```
 
-## Outra alternativa
+## LiteLLM Proxy
 
 O LiteLLM age como um tradutor universal entre o Claude Code e qualquer provedor de LLM, convertendo o formato das APIs automaticamente.
 
 **Instalar e configurar**
+```bash
 pip install litellm
+```
 
 Crie o arquivo `litellm-config.yaml`:
 
