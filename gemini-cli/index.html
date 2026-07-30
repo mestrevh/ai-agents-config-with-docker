@@ -403,6 +403,14 @@ CMD ["bash"]</pre>
             </div>
 
             <div class="command-box">
+                <div class="command-label">Executar Direto (com Volume)</div>
+                <div class="command-code" id="cmd-gemini-run">docker run -it --rm -v $(pwd):/workspace gemini-cli</div>
+                <button class="btn-copy" onclick="copyCommand('cmd-gemini-run', this)" title="Copiar Comando">
+                    <svg viewBox="0 0 24 24"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2m4-2v4h4V2m-8 8h8m-8 4h8m-8 4h4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg>
+                </button>
+            </div>
+
+            <div class="command-box">
                 <div class="command-label">Executar via Compose</div>
                 <div class="command-code" id="cmd-gemini-compose">docker compose -f docker-compose-gemini.yml run --rm gemini</div>
                 <button class="btn-copy" onclick="copyCommand('cmd-gemini-compose', this)" title="Copiar Comando">

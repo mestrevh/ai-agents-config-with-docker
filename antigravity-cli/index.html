@@ -1308,17 +1308,19 @@
 <span class="terminal-line terminal-success">Successfully tagged meu-container:v1</span>
 `,
             run: `
-<span class="terminal-line terminal-input">$ docker run -it --name meu-app meu-container:v1</span>
+<span class="terminal-line terminal-input">$ docker run -it --rm -v $(pwd):/workspace meu-container:v1</span>
 <span class="terminal-line terminal-output">root@a984eb82cf12:/workspace# _</span>
 <span class="terminal-line terminal-output">root@a984eb82cf12:/workspace# ls -la</span>
-<span class="terminal-line terminal-output">total 12</span>
+<span class="terminal-line terminal-output">total 16</span>
 <span class="terminal-line terminal-output">drwxr-xr-x 2 root root 4096 May 20 14:15 .</span>
 <span class="terminal-line terminal-output">drwxr-xr-x 1 root root 4096 May 20 14:15 ..</span>
+<span class="terminal-line terminal-output">-rw-r--r-- 1 root root  290 May 20 14:15 Dockerfile</span>
+<span class="terminal-line terminal-output">-rw-r--r-- 1 root root 1024 May 20 14:15 README.md</span>
 <span class="terminal-line terminal-output">root@a984eb82cf12:/workspace# echo "Hello Docker World!"</span>
 <span class="terminal-line terminal-output terminal-success">Hello Docker World!</span>
 <span class="terminal-line terminal-output">root@a984eb82cf12:/workspace# exit</span>
 <span class="terminal-line terminal-output">exit</span>
-<span class="terminal-line terminal-output">Container meu-app terminado.</span>
+<span class="terminal-line terminal-output">Container terminado.</span>
 `,
             inspect: `
 <span class="terminal-line terminal-input">$ docker ps -a</span>
