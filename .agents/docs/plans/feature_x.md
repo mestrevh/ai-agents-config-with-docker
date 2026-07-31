@@ -3,7 +3,7 @@
 > [!NOTE]
 > Este documento serve como um checklist vivo para acompanharmos o progresso do desenvolvimento do sistema.
 
-## 📝 Legenda de Status
+## Legenda de Status
 - `[ ]` A fazer
 - `[/]` Em progresso
 - `[x]` Concluído
