@@ -861,7 +861,7 @@
                         <div class="command-label">
                             <span>Construir Imagem Gemini CLI</span>
                         </div>
-                        <div class="command-code" id="cmd-anti-build">docker build -t gemini-cli .</div>
+                        <div class="command-code" id="cmd-anti-build">docker buildx build -t gemini-cli ./gemini-cli</div>
                         <button class="btn-copy" onclick="copyCommand('cmd-anti-build', this)" title="Copiar Comando">
                             <svg class="icon-copy" viewBox="0 0 24 24"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2m4-2v4h4V2m-8 8h8m-8 4h8m-8 4h4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg>
                         </button>
@@ -881,7 +881,7 @@
                         <div class="command-label">
                             <span>Construir Imagem Antigravity</span>
                         </div>
-                        <div class="command-code" id="cmd-anti-build">docker build -t antigravity-cli .</div>
+                        <div class="command-code" id="cmd-anti-build">docker buildx build -t antigravity-cli ./antigravity-cli</div>
                         <button class="btn-copy" onclick="copyCommand('cmd-anti-build', this)" title="Copiar Comando">
                             <svg class="icon-copy" viewBox="0 0 24 24"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2m4-2v4h4V2m-8 8h8m-8 4h8m-8 4h4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg>
                         </button>
@@ -901,7 +901,7 @@
                         <div class="command-label">
                             <span>Construir Imagem Claude Code</span>
                         </div>
-                        <div class="command-code" id="cmd-claude-build">docker build -t claude-code .</div>
+                        <div class="command-code" id="cmd-claude-build">docker buildx build -t claude-code ./claude-code</div>
                         <button class="btn-copy" onclick="copyCommand('cmd-claude-build', this)" title="Copiar Comando">
                             <svg class="icon-copy" viewBox="0 0 24 24"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2m4-2v4h4V2m-8 8h8m-8 4h8m-8 4h4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg>
                         </button>
@@ -921,7 +921,7 @@
                         <div class="command-label">
                             <span>Construir Imagem Hermes Agent</span>
                         </div>
-                        <div class="command-code" id="cmd-hermes-build">docker build -t hermes-agent ./hermes</div>
+                        <div class="command-code" id="cmd-hermes-build">docker buildx build -t hermes-agent ./hermes</div>
                         <button class="btn-copy" onclick="copyCommand('cmd-hermes-build', this)" title="Copiar Comando">
                             <svg class="icon-copy" viewBox="0 0 24 24"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2m4-2v4h4V2m-8 8h8m-8 4h8m-8 4h4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg>
                         </button>

@@ -5,7 +5,7 @@ Ambiente de containerização isolado para o **Gemini CLI** (`@google/gemini-cli
 ## Build da Imagem
 
 ```bash
-docker build -t gemini-cli ./gemini-cli
+docker buildx build -t gemini-cli ./gemini-cli
 ```
 
 ## Execução Interativa (com Mapeamento de Volume)

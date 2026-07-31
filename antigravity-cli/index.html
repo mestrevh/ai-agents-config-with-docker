@@ -1079,7 +1079,7 @@
                         <div class="filename">Terminal do Desenvolvedor</div>
                     </div>
                     <div class="terminal-body" id="terminal-body">
-                        <span class="terminal-line terminal-input">$ docker build -t meu-container:v1 .</span>
+                        <span class="terminal-line terminal-input">$ docker buildx build -t meu-container:v1 .</span>
                         <span class="terminal-line terminal-output">Sending build context to Docker daemon  3.072kB</span>
                         <span class="terminal-line terminal-output">Step 1/6 : FROM ubuntu:latest</span>
                         <span class="terminal-line terminal-output"> ---> f975c5035748</span>
@@ -1288,7 +1288,7 @@
 
         const simulatorContent = {
             build: `
-<span class="terminal-line terminal-input">$ docker build -t meu-container:v1 .</span>
+<span class="terminal-line terminal-input">$ docker buildx build -t meu-container:v1 .</span>
 <span class="terminal-line terminal-output">Sending build context to Docker daemon  3.072kB</span>
 <span class="terminal-line terminal-output">Step 1/6 : FROM ubuntu:latest</span>
 <span class="terminal-line terminal-output"> ---> f975c5035748</span>

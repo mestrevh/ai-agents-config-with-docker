@@ -5,7 +5,7 @@ Ambiente de containerização isolado para o **Hermes Agent** (Nous Research).
 ## Build da Imagem
 
 ```bash
-docker build -t hermes-agent ./hermes
+docker buildx build -t hermes-agent ./hermes
 ```
 
 ## Execução Interativa (com Mapeamento de Volume)

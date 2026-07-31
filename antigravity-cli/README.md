@@ -5,7 +5,7 @@ Ambiente de containerização isolado para o **Antigravity CLI**.
 ## Build da Imagem
 
 ```bash
-docker build -t antigravity-cli ./antigravity-cli
+docker buildx build -t antigravity-cli ./antigravity-cli
 ```
 
 ## Execução Interativa (com Mapeamento de Volume)

@@ -5,7 +5,7 @@ Ambiente de containerização isolado para o **Claude Code** (`@anthropic-ai/cla
 ## Build da Imagem
 
 ```bash
-docker build -t claude-code ./claude-code
+docker buildx build -t claude-code ./claude-code
 ```
 
 ## Execução Interativa (com Mapeamento de Volume)
